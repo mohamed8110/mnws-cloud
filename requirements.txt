@@ -1,7 +1,0 @@
-streamlit
-requests
-feedparser
-beautifulsoup4
-html2text
-openai
-python-dotenv
