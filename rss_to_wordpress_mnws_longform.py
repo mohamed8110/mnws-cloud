@@ -1,4 +1,3 @@
-
 import os
 import feedparser
 import openai
@@ -37,24 +36,20 @@ DEFAULT_FEEDS = [
 ]
 
 def load_feeds():
-    if os.path.exists("rss_feeds.txt"):
+    try:
         with open("rss_feeds.txt", "r", encoding="utf-8") as f:
-            feeds = [line.strip() for line in f if line.strip()]
-            return feeds if feeds else DEFAULT_FEEDS
-    return DEFAULT_FEEDS
-
-            return list(set(default_feeds + extra))
+            extra = [line.strip() for line in f if line.strip()]
+        return list(set(DEFAULT_FEEDS + extra))
     except FileNotFoundError:
-        return default_feeds
+        return DEFAULT_FEEDS
 
-FEEDS = load_feeds()
 seen_articles = set()
 
 def fetch_and_process(max_articles_per_day=100):
     count = 0
-    today = datetime.now(timezone.utc).date()
+    feeds = load_feeds()
 
-    for url in FEEDS:
+    for url in feeds:
         if count >= max_articles_per_day:
             break
         feed = feedparser.parse(url)
@@ -65,7 +60,7 @@ def fetch_and_process(max_articles_per_day=100):
             if not hasattr(entry, 'published_parsed'):
                 continue
             pub_date = datetime(*entry.published_parsed[:6]).date()
-            if pub_date != today:
+            if pub_date != TARGET_DATE:
                 continue
             if entry.link in seen_articles:
                 continue
